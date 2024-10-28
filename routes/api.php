@@ -15,3 +15,10 @@ Route::apiResource('products', ProductController::class);
 Route::post('register', [AuthController::class, 'register']);
 Route::post('login', [AuthController::class, 'login']);
 // route logout agar bisa remove token must include middleware auth:sanctum
+
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/products', [ProductController::class, 'index']);
+    Route::post('/products/search', [ProductController::class, 'search']);
+    Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+    // Add other protected routes here
+});

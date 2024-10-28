@@ -11,9 +11,16 @@ class ProductController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $products = Product::all();
+        $query = Product::query();
+
+        // Check if a category filter is provided
+        if ($request->has('category')) {
+            $query->where('category', $request->input('category'));
+        }
+
+        $products = $query->get();
 
         if ($products->isEmpty()) {
             return response()->json([
@@ -35,6 +42,26 @@ class ProductController extends Controller
     public function create()
     {
         //
+    }
+
+    public function search(Request $request)
+    {
+        $query = $request->input('query');
+
+        $products = Product::where('product_name', 'LIKE', "%{$query}%")->get();
+
+        if ($products->isEmpty()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'No products found'
+            ], 404);
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Products found',
+            'data' => $products
+        ], 200);
     }
 
     /**
@@ -92,7 +119,7 @@ class ProductController extends Controller
             'success' => true,
             'message' => 'Product retrieved successfully',
             'data' => $product
-        ],200);
+        ], 200);
     }
 
     /**
